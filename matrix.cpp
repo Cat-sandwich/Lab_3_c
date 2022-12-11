@@ -11,7 +11,6 @@ Matrix<T>::Matrix()
 {
 	m = 0;
 	n = 0;
-	data = NULL;
 
 }
 
@@ -20,11 +19,6 @@ Matrix<T>::Matrix(int m, int n)
 {
 	this->m = m;
 	this->n = n;
-
-	data = (T**) new T * [m];
-
-	for (int i = 0; i < m; i++)
-		data[i] = (T*) new T[n];
 
 }
 
@@ -35,16 +29,9 @@ Matrix<T>::Matrix(int m, int n, const T& value)
 	Set_m(m);
 	Set_n(n);
 
-	data = (T**) new T * [m];
+	vector<vector<T>> new_data(m, vector<T>(n, value));
 
-	for (int i = 0; i < m; i++)
-		data[i] = (T*) new T[n];
-	for (int i = 0; i < m; i++)
-	{
-		for (int j = 0; j < n; j++)
-			data[i][j] = value;
-	}
-
+	*this = new_data;
 }
 
 template <class T>
@@ -53,15 +40,16 @@ Matrix<T>::Matrix(const Matrix<T>& Matrix)
 	m = Matrix.m;
 	n = Matrix.n;
 
+	
+	auto it = Matrix.cbegin();
 
-	data = (T**) new T * [m];
+	auto jt = Matrix.cbegin(vector<T>);
 
-	for (int i = 0; i < m; i++)
-		data[i] = (T*) new T[n];
+	for (it; it != Matrix.cend(); it++)
+		for (jt; jt != Matrix.cend(vector<T>); jt++)
+			data.push_back(*it(vector<T>(*jt)));
 
-	for (int i = 0; i < m; i++)
-		for (int j = 0; j < n; j++)
-			data[i][j] = Matrix.data[i][j];
+	
 }
 
 template <class T>
@@ -93,77 +81,57 @@ int Matrix<T>::Get_n()
 template <class T>
 void Matrix<T>::Set_Data(const T& value)
 {
-	for (int i = 0; i < m; i++)
-		for (int j = 0; j < n; j++)
-			data[i][j] = value;
+	vector<vector<T>> new_data(m, vector<T>(n, value));
+
+	*this = new_data;
 }
 
 template <class T>
 T Matrix<T>::Get_Data(int i, int j) const //todo+
 {
 	if ((m <= i) && (n <= j)) throw Invalid_Index();
-	return data[i][j];
+	auto it = data.cbegin();
+	auto jt = data.cbegin(<vector<T>>);
+	it += i;
+	jt += j;
+	return *it(*jt);
 
 }
 
 
-template <class T>
-void Matrix<T>::Print(const int& Number_Matrix)
-{
-	if (data == NULL) throw Empty();
-	cout << "Number_Matrix: " << Number_Matrix << endl;
-	for (int i = 0; i < m; i++)
-	{
-		for (int j = 0; j < n; j++)
-			cout << data[i][j] << "\t";
-		cout << endl;
-	}
-}
+
 
 template <class T>
 Matrix<T>& Matrix<T>::operator = (const Matrix<T>& M) //ToDO+
 {
 	if ((m == M.m) && (n == M.n))
 	{
-		for (int i = 0; i < m; i++)
-			for (int j = 0; j < n; j++)
-				data[i][j] = M.data[i][j];
+		data = M;
 		return *this;
 	}
 	if ((m < M.m) || (n < M.n))
 	{
-		for (int i = 0; i < m; i++)
-			delete[] data[i];
-
-		delete[] data;
+		data.clear();
 
 	}
 	m = M.m;
 	n = M.n;
 
+	auto it = Matrix.cbegin();
 
-	data = (T**) new T * [m];
+	auto jt = Matrix.begin(vector<T>);
+	
 
-	for (int i = 0; i < m; i++)
-		data[i] = (T*) new T[n];
-
-	for (int i = 0; i < m; i++)
-		for (int j = 0; j < n; j++)
-			data[i][j] = M.data[i][j];
+	for (it; it != Matrix.cend(); it++)
+		for (jt; jt != Matrix.cend(vector<T>); jt++)
+			data.push_back(*it(vector<T>(*jt)));
 	return *this;
 }
 
 template <class T>
 Matrix<T>::~Matrix()
 {
-	if (n > 0)
-	{
-		for (int i = 0; i < m; i++)
-			delete[] data[i];
-	}
-
-	if (m > 0)
-		delete[] data;
+	data.clear();
 }
 
 template <class T>
@@ -178,7 +146,12 @@ template <class T>
 Matrix<T>& Matrix<T>::operator () (int m, int n, const T& value)
 {
 	if ((m > this->m) || (n > this->n)) throw Invalid_Index();
-	data[m][n] = value;
+	auto it = data.cbegin();
+	auto jt = data.cbegin(<vector<T>>);
+	it += i;
+	jt += j;
+	
+	*it(*jt) = value;
 	return *this;
 
 }
@@ -187,8 +160,11 @@ template <class T>
 Matrix<T> Matrix<T>::operator + (const Matrix<T>& New_Matrix) {
 	if (this->m != New_Matrix.m || this->n != New_Matrix.n) throw Different_Dimensions();
 	Matrix<T> res(m, n, T(0));
-	for (int i = 0; i < this->m; i++) {
-		for (int j = 0; j < n; j++) {
+	auto it = res.cbegin();
+	auto jt = res.cbegin(<vector<T>>);
+	
+	for (it; it != res.cend(); it++) {
+		for (jt; jt != res.cend(vector<T>); jt++) {
 			res.data[i][j] = this->data[i][j] + New_Matrix.data[i][j];
 		}
 	}
