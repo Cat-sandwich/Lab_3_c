@@ -9,18 +9,18 @@ template <class T>
 class Matrix
 {
 private:
-	vector<vector<T>>	
+	vector<vector<T>> data;
 	int m, n;
 
-	auto begin() { return begin(); }
-	auto end() { return end(); }
+	auto begin() { return data.begin(); }
+	auto end() { return data.end(); }
 
 public:
 	Matrix() = default;
 
 	Matrix(int m, int n);
 
-	Matrix(int m, int n, const T& value); // TODO+
+	Matrix(int m, int n, const T& value);
 
 	Matrix(const Matrix& Matrix) = default;
 
@@ -32,13 +32,13 @@ public:
 
 	int Get_n();
 
-	void Set_Data(const T& value); // TODO+
+	void Set_Data(const T& value); 
 
 	T Get_Data(int i, int j) const;
 
-	auto cbegin() const { return cbegin(); }
+	auto cbegin() const { return data.cbegin(); }
 
-	auto cend() const { return cend(); }
+	auto cend() const { return data.cend(); }
 
 	Matrix& operator = (const Matrix& M);
 
@@ -78,9 +78,12 @@ public:
 
 	friend ostream& operator << (ostream& os, const Matrix& New_Matrix)
 	{
-		for (int i = 0; i < New_Matrix.m; i++) {
-			for (int j = 0; j < New_Matrix.n; j++) {
-				os << setw(10) << New_Matrix.Get_Data(i, j);
+		for (auto it = New_Matrix.cbegin(); it != New_Matrix.cend(); it++) 
+		{
+			for (auto iter = (*it).cbegin(); iter != (*it).cend(); iter++) 
+			{
+				os << setw(10);
+				os<< ( *iter);
 			}
 			cout << endl;
 		}

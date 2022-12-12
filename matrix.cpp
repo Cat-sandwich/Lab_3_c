@@ -40,7 +40,7 @@ Matrix<T>::Matrix(const Matrix<T>& Matrix)
 	m = Matrix.m;
 	n = Matrix.n;
 
-	
+
 	auto it = Matrix.cbegin();
 
 	auto jt = Matrix.cbegin(vector<T>);
@@ -49,7 +49,7 @@ Matrix<T>::Matrix(const Matrix<T>& Matrix)
 		for (jt; jt != Matrix.cend(vector<T>); jt++)
 			data.push_back(*it(vector<T>(*jt)));
 
-	
+
 }
 
 template <class T>
@@ -120,7 +120,7 @@ Matrix<T>& Matrix<T>::operator = (const Matrix<T>& M) //ToDO+
 	auto it = Matrix.cbegin();
 
 	auto jt = Matrix.begin(vector<T>);
-	
+
 
 	for (it; it != Matrix.cend(); it++)
 		for (jt; jt != Matrix.cend(vector<T>); jt++)
@@ -137,21 +137,17 @@ Matrix<T>::~Matrix()
 template <class T>
 T& Matrix<T>::operator ()(int m, int n) const
 {
-	if ((m > this->m) || (n > this->n)) throw Invalid_Index();
 
-	return data[m][n];
+	return data.at(m, (vector<T>(n)));
 }
 
 template <class T>
 Matrix<T>& Matrix<T>::operator () (int m, int n, const T& value)
 {
 	if ((m > this->m) || (n > this->n)) throw Invalid_Index();
-	auto it = data.cbegin();
-	auto jt = data.cbegin(<vector<T>>);
-	it += i;
-	jt += j;
-	
-	*it(*jt) = value;
+
+
+	data.at(m, (vector<T> n)) = value;
 	return *this;
 
 }
@@ -159,14 +155,20 @@ Matrix<T>& Matrix<T>::operator () (int m, int n, const T& value)
 template <class T>
 Matrix<T> Matrix<T>::operator + (const Matrix<T>& New_Matrix) {
 	if (this->m != New_Matrix.m || this->n != New_Matrix.n) throw Different_Dimensions();
-	Matrix<T> res(m, n, T(0));
+	Matrix<T> res = data;
 	auto it = res.cbegin();
 	auto jt = res.cbegin(<vector<T>>);
-	
+
+	auto iter = New_Matrix.cbegin();
+	auto jter = (*iter).cbegin();
 	for (it; it != res.cend(); it++) {
-		for (jt; jt != res.cend(vector<T>); jt++) {
-			res.data[i][j] = this->data[i][j] + New_Matrix.data[i][j];
+		for (jt; jt != res.cend(vector<T>); jt++)
+		{
+			(*jt) = (*jt) + (*jter);
+
+			jter++;
 		}
+		iter++;
 	}
 	return res;
 }
@@ -175,11 +177,20 @@ template <class T>
 Matrix<T> Matrix<T>::operator - (const Matrix<T>& New_Matrix) {
 	if (this->m != New_Matrix.m || this->n != New_Matrix.n) throw Different_Dimensions();
 
-	Matrix<T> res(m, n, T(0));
-	for (int i = 0; i < this->m; i++) {
-		for (int j = 0; j < n; j++) {
-			res.data[i][j] = this->data[i][j] - New_Matrix.data[i][j];
+	Matrix<T> res = data;
+	auto it = res.cbegin();
+	auto jt = res.cbegin(<vector<T>>);
+
+	auto iter = New_Matrix.cbegin();
+	auto jter = (*iter).cbegin();
+	for (it; it != res.cend(); it++) {
+		for (jt; jt != res.cend(vector<T>); jt++)
+		{
+			(*jt) = (*jt) - (*jter);
+
+			jter++;
 		}
+		iter++;
 	}
 	return res;
 }
@@ -190,6 +201,16 @@ Matrix<T> Matrix<T>::operator * (const Matrix<T>& New_Matrix)
 	if (n != New_Matrix.m) throw Different_Dimensions();
 
 	Matrix<T> res(m, New_Matrix.n, T(0));
+
+	for (auto it = res.cbegin(); it != res.cend(); ++it)
+		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); ++jt)
+		{
+			for (int k = 0; k < m; ++k)
+			{
+				(*jt) += (*it)[k] ;
+			}
+		}
+
 
 	for (int i = 0; i < res.m; ++i)
 		for (int j = 0; j < res.n; ++j)
@@ -205,15 +226,13 @@ Matrix<T> Matrix<T>::operator * (const Matrix<T>& New_Matrix)
 template <class T>
 Matrix<T> Matrix<T>::operator * (const T& scalar)
 {
-	Matrix<T> res(m, n, T(0));
+	Matrix<T> res = data;
 
-	for (int i = 0; i < this->m; i++)
-	{
-		for (int j = 0; j < this->n; j++)
-		{
-			res.data[i][j] = data[i][j] * scalar;
-		}
-	}
+	for (auto it = res.cbegin(); it != res.cend(); it++)
+		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+			(*jt) = (*jt) * scalar;
+
+
 	return res;
 }
 
@@ -221,13 +240,12 @@ template <class T>
 Matrix<T> Matrix<T>::operator / (const T& scalar)
 {
 	if (scalar == T(0)) throw Divizion_By_Zero();
-	Matrix<T> res(m, n, T(0));
+	Matrix<T> res = data;
 
-	for (int i = 0; i < this->m; i++) {
-		for (int j = 0; j < this->n; j++) {
-			res.data[i][j] = data[i][j] / scalar;
-		}
-	}
+	for (auto it = res.cbegin(); it != res.cend(); it++)
+		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+			(*jt) = (*jt) / scalar;
+
 	return res;
 }
 
@@ -236,12 +254,13 @@ T Matrix<T>::Ñalculating_trace_matrix()
 {
 	if (n != m) throw Dimensions_Incorrect();
 	T trace = 0;
-	for (int i = 0; i < this->m; i++) {
-		for (int j = 0; j < this->n; j++) {
-			if (i == j)
-				trace += data[i][j];
+	for (auto it = data.cbegin(); it != data.cend(); it++)
+		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+		{
+			if (it == jt)
+				trace += (*jt);
 		}
-	}
+
 	return trace;
 }
 
@@ -266,13 +285,14 @@ template <class T>
 void Matrix<T>::Random()
 {
 	srand(time(0));
-	for (int i = 0; i < m; ++i)
-		for (int j = 0; j < n; ++j)
-			data[i][j] = T((1 + rand() % 100) / 10.0);
+	for (auto it = data.cbegin(); it != data.cend(); it++)
+		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+			(*jt) = T((1 + rand() % 100) / 10.0);
+
 }
 
 template <class T>
-Matrix<T> Matrix<T>::Pre_Minor(int row, int col) const //todo+
+Matrix<T> Matrix<T>::Pre_Minor(int row, int col) const
 {
 	if (n != m) throw Different_Dimensions();
 	Matrix<T> New_Matrix(m - 1, n - 1);
@@ -363,34 +383,34 @@ Matrix<T> Matrix<T>::Search_Matrix_X(const Matrix<T>& Vector)
 	return Ans;
 }
 
-template <>
-void Matrix<complex<double>>::Random()
-{
-	srand(time(0));
-	for (int i = 0; i < m; ++i)
-	{
-		for (int j = 0; j < n; ++j)
-		{
-			complex<double> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
-			data[i][j] = value;
-		}
-	}
-}
+//template <>
+//void Matrix<complex<double>>::Random()
+//{
+//	srand(time(0));
+//	for (int i = 0; i < m; ++i)
+//	{
+//		for (int j = 0; j < n; ++j)
+//		{
+//			complex<double> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
+//			data[i][j] = value;
+//		}
+//	}
+//}
 
-template <>
-void Matrix<complex<float>>::Random()
-{
-
-	srand(time(0));
-	for (int i = 0; i < m; ++i)
-	{
-		for (int j = 0; j < n; ++j)
-		{
-			complex<float> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
-			data[i][j] = value;
-		}
-	}
-}
+//template <>
+//void Matrix<complex<float>>::Random()
+//{
+//
+//	srand(time(0));
+//
+//	for (auto it = data.cbegin(); it != data.cend(); it++)
+//		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+//		{
+//			complex<float> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
+//			(*jt) = value;
+//		}
+//
+//}
 
 template class Matrix<int>;
 template class Matrix<float>;
