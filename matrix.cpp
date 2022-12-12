@@ -19,6 +19,9 @@ Matrix<T>::Matrix(int m, int n)
 {
 	this->m = m;
 	this->n = n;
+	vector<vector<T>> new_data(m, vector<T>(n));
+
+	data = new_data;
 
 }
 
@@ -31,7 +34,7 @@ Matrix<T>::Matrix(int m, int n, const T& value)
 
 	vector<vector<T>> new_data(m, vector<T>(n, value));
 
-	*this = new_data;
+	data = new_data;
 }
 
 template <class T>
@@ -40,16 +43,7 @@ Matrix<T>::Matrix(const Matrix<T>& Matrix)
 	m = Matrix.m;
 	n = Matrix.n;
 
-
-	auto it = Matrix.cbegin();
-
-	auto jt = Matrix.cbegin(vector<T>);
-
-	for (it; it != Matrix.cend(); it++)
-		for (jt; jt != Matrix.cend(vector<T>); jt++)
-			data.push_back(*it(vector<T>(*jt)));
-
-
+	data = Matrix.data;
 }
 
 template <class T>
@@ -83,7 +77,7 @@ void Matrix<T>::Set_Data(const T& value)
 {
 	vector<vector<T>> new_data(m, vector<T>(n, value));
 
-	*this = new_data;
+	data = new_data;
 }
 
 template <class T>
@@ -91,42 +85,14 @@ T Matrix<T>::Get_Data(int i, int j) const //todo+
 {
 	if ((m <= i) && (n <= j)) throw Invalid_Index();
 	auto it = data.cbegin();
-	auto jt = data.cbegin(<vector<T>>);
 	it += i;
+	auto jt = it->cbegin();
 	jt += j;
-	return *it(*jt);
+	return (* jt);
 
 }
 
 
-
-
-template <class T>
-Matrix<T>& Matrix<T>::operator = (const Matrix<T>& M) //ToDO+
-{
-	if ((m == M.m) && (n == M.n))
-	{
-		data = M;
-		return *this;
-	}
-	if ((m < M.m) || (n < M.n))
-	{
-		data.clear();
-
-	}
-	m = M.m;
-	n = M.n;
-
-	auto it = Matrix.cbegin();
-
-	auto jt = Matrix.begin(vector<T>);
-
-
-	for (it; it != Matrix.cend(); it++)
-		for (jt; jt != Matrix.cend(vector<T>); jt++)
-			data.push_back(*it(vector<T>(*jt)));
-	return *this;
-}
 
 template <class T>
 Matrix<T>::~Matrix()
@@ -135,10 +101,14 @@ Matrix<T>::~Matrix()
 }
 
 template <class T>
-T& Matrix<T>::operator ()(int m, int n) const
+T Matrix<T>::operator ()(int m, int n) const
 {
+	auto it = data.cbegin();	
+	it += m;
 
-	return data.at(m, (vector<T>(n)));
+	auto jt = (*it).cbegin();
+	jt += n;
+	return  (*jt);
 }
 
 template <class T>
@@ -146,8 +116,11 @@ Matrix<T>& Matrix<T>::operator () (int m, int n, const T& value)
 {
 	if ((m > this->m) || (n > this->n)) throw Invalid_Index();
 
-
-	data.at(m, (vector<T> n)) = value;
+	auto it = data.begin();
+	it += m;
+	auto jt = (*it).begin();
+	jt += n;
+	(*jt) = value;
 	return *this;
 
 }
@@ -155,17 +128,15 @@ Matrix<T>& Matrix<T>::operator () (int m, int n, const T& value)
 template <class T>
 Matrix<T> Matrix<T>::operator + (const Matrix<T>& New_Matrix) {
 	if (this->m != New_Matrix.m || this->n != New_Matrix.n) throw Different_Dimensions();
-	Matrix<T> res = data;
-	auto it = res.cbegin();
-	auto jt = res.cbegin(<vector<T>>);
-
-	auto iter = New_Matrix.cbegin();
-	auto jter = (*iter).cbegin();
-	for (it; it != res.cend(); it++) {
-		for (jt; jt != res.cend(vector<T>); jt++)
+	Matrix<T> res = *this;
+	
+	auto iter = New_Matrix.cbegin();	
+	for (auto it = res.begin(); it != res.end(); it++) 
+	{
+		auto jter = iter->cbegin();
+		for (auto jt = it->begin(); jt != it->end(); jt++)
 		{
-			(*jt) = (*jt) + (*jter);
-
+			(*jt) += (*jter);
 			jter++;
 		}
 		iter++;
@@ -177,14 +148,14 @@ template <class T>
 Matrix<T> Matrix<T>::operator - (const Matrix<T>& New_Matrix) {
 	if (this->m != New_Matrix.m || this->n != New_Matrix.n) throw Different_Dimensions();
 
-	Matrix<T> res = data;
-	auto it = res.cbegin();
-	auto jt = res.cbegin(<vector<T>>);
-
+	Matrix<T> res = *this;
+	
 	auto iter = New_Matrix.cbegin();
-	auto jter = (*iter).cbegin();
-	for (it; it != res.cend(); it++) {
-		for (jt; jt != res.cend(vector<T>); jt++)
+	
+	for (auto it = res.begin(); it != res.end(); it++)
+	{
+		auto jter = iter->cbegin();
+		for (auto jt = it->begin(); jt != it->end(); jt++)
 		{
 			(*jt) = (*jt) - (*jter);
 
@@ -202,34 +173,28 @@ Matrix<T> Matrix<T>::operator * (const Matrix<T>& New_Matrix)
 
 	Matrix<T> res(m, New_Matrix.n, T(0));
 
-	for (auto it = res.cbegin(); it != res.cend(); ++it)
-		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); ++jt)
+	for (int i = 0; i < res.m; ++i)
+	{
+		for (int j = 0; j < res.n; ++j)
 		{
 			for (int k = 0; k < m; ++k)
 			{
-				(*jt) += (*it)[k] ;
+				res.data.at(i).at(j) += data.at(i).at(k) * New_Matrix.data.at(k).at(j);
 			}
+				
 		}
-
-
-	for (int i = 0; i < res.m; ++i)
-		for (int j = 0; j < res.n; ++j)
-		{
-
-			for (int k = 0; k < m; ++k)
-
-				res.data[i][j] += data[i][k] * New_Matrix.data[k][j];
-		}
+	}
+		
 	return res;
 }
 
 template <class T>
 Matrix<T> Matrix<T>::operator * (const T& scalar)
 {
-	Matrix<T> res = data;
+	Matrix<T> res = *this;
 
-	for (auto it = res.cbegin(); it != res.cend(); it++)
-		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+	for (auto it = res.begin(); it != res.cend(); it++)
+		for (auto jt = it->begin(); jt != it->cend(); jt++)
 			(*jt) = (*jt) * scalar;
 
 
@@ -240,10 +205,10 @@ template <class T>
 Matrix<T> Matrix<T>::operator / (const T& scalar)
 {
 	if (scalar == T(0)) throw Divizion_By_Zero();
-	Matrix<T> res = data;
+	Matrix<T> res = *this;
 
-	for (auto it = res.cbegin(); it != res.cend(); it++)
-		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+	for (auto it = res.begin(); it != res.end(); it++)
+		for (auto jt = it->begin(); jt != it->end(); jt++)
 			(*jt) = (*jt) / scalar;
 
 	return res;
@@ -254,14 +219,14 @@ T Matrix<T>::Сalculating_trace_matrix()
 {
 	if (n != m) throw Dimensions_Incorrect();
 	T trace = 0;
-	for (auto it = data.cbegin(); it != data.cend(); it++)
-		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
-		{
-			if (it == jt)
-				trace += (*jt);
+	for (int i = 0; i < this->m; i++) {
+		for (int j = 0; j < this->n; j++) {
+			if (i == j)
+				trace += data.at(i).at(j);
 		}
-
+	}
 	return trace;
+
 }
 
 template <class T>
@@ -272,8 +237,8 @@ Matrix<T> Matrix<T>::Transpose()
 	{
 		for (int j = i; j < n; ++j)
 		{
-			Transposed.data[i][j] = data[j][i];
-			Transposed.data[j][i] = data[i][j];
+			Transposed.data.at(i).at(j) = data.at(j).at(i);
+			Transposed.data.at(j).at(i) = data.at(i).at(j);
 		}
 		cout << '\n';
 	}
@@ -285,8 +250,8 @@ template <class T>
 void Matrix<T>::Random()
 {
 	srand(time(0));
-	for (auto it = data.cbegin(); it != data.cend(); it++)
-		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
+	for (auto it = data.begin(); it != data.end(); it++)
+		for (auto jt = it->begin(); jt != it->end(); jt++)
 			(*jt) = T((1 + rand() % 100) / 10.0);
 
 }
@@ -305,7 +270,7 @@ Matrix<T> Matrix<T>::Pre_Minor(int row, int col) const
 			jn = 0;
 			for (int j = 0; j < m; j++) {
 				if (j != col) {
-					New_Matrix.data[in][jn] = data[i][j];
+					New_Matrix.data.at(in).at(jn) = data.at(i).at(j);
 					jn++;
 				}
 			}
@@ -327,12 +292,12 @@ T Matrix<T>::NDeterminant(int size)
 	if (size < 1) cout << "Определитель вычислить невозможно!";
 	if (m == 1)
 	{
-		d = data[0][0];
+		d = data.at(0).at(0);
 		return(d);
 	}
 	if (m == 2)
 	{
-		d = data[0][0] * data[1][1] - data[1][0] * data[0][1];
+		d = data.at(0).at(0) * data.at(1).at(1) - data.at(1).at(0) * data.at(0).at(1);
 		return(d);
 	}
 	if (m > 2)
@@ -344,7 +309,7 @@ T Matrix<T>::NDeterminant(int size)
 
 			TmpMatrix = (*this).Pre_Minor(i, 0);
 
-			d += T(k) * data[i][0] * TmpMatrix.NDeterminant(new_size);
+			d += T(k) * data.at(i).at(0) * TmpMatrix.NDeterminant(new_size);
 			k = -k;
 		}
 
@@ -369,7 +334,7 @@ Matrix<T> Matrix<T>::Search_Matrix_X(const Matrix<T>& Vector)
 	{
 		for (int j = 0; j < m; j++)
 		{
-			Minors.data[i][j] = (T(pow(-1, (i + j)))) * Pre_Minor(i, j).NDeterminant(m - 1);
+			Minors.data.at(i).at(j) = (T(pow(-1, (i + j)))) * Pre_Minor(i, j).NDeterminant(m - 1);
 
 		}
 	}
@@ -383,34 +348,32 @@ Matrix<T> Matrix<T>::Search_Matrix_X(const Matrix<T>& Vector)
 	return Ans;
 }
 
-//template <>
-//void Matrix<complex<double>>::Random()
-//{
-//	srand(time(0));
-//	for (int i = 0; i < m; ++i)
-//	{
-//		for (int j = 0; j < n; ++j)
-//		{
-//			complex<double> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
-//			data[i][j] = value;
-//		}
-//	}
-//}
+template <>
+void Matrix<complex<double>>::Random()
+{
+	srand(time(0));
+	for (auto it = data.begin(); it != data.end(); it++)
+		for (auto jt = it->begin(); jt != it->end(); jt++)
+		{
+			complex<double> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
+			(*jt) = value;
+		}
+}
 
-//template <>
-//void Matrix<complex<float>>::Random()
-//{
-//
-//	srand(time(0));
-//
-//	for (auto it = data.cbegin(); it != data.cend(); it++)
-//		for (auto jt = (*it).cbegin(); jt != (*jt).cend(); jt++)
-//		{
-//			complex<float> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
-//			(*jt) = value;
-//		}
-//
-//}
+template <>
+void Matrix<complex<float>>::Random()
+{
+
+	srand(time(0));
+
+	for (auto it = data.begin(); it != data.end(); it++)
+		for (auto jt = it->begin(); jt != it->end(); jt++)
+		{
+			complex<float> value(((1 + rand() % 100) / 10.0), ((1 + rand() % 100) / 10.0));
+			(*jt) = value;
+		}
+
+}
 
 template class Matrix<int>;
 template class Matrix<float>;

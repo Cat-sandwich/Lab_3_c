@@ -16,13 +16,13 @@ private:
 	auto end() { return data.end(); }
 
 public:
-	Matrix() = default;
+	Matrix();
 
 	Matrix(int m, int n);
 
 	Matrix(int m, int n, const T& value);
 
-	Matrix(const Matrix& Matrix) = default;
+	Matrix(const Matrix& Matrix);
 
 	void Set_m(int m = 1);
 
@@ -40,11 +40,9 @@ public:
 
 	auto cend() const { return data.cend(); }
 
-	Matrix& operator = (const Matrix& M);
+	~Matrix() ;
 
-	~Matrix() = default;
-
-	T& operator () (int m, int n) const;
+	T operator () (int m, int n) const;
 
 	Matrix& operator () (int m, int n, const T& value);
 
