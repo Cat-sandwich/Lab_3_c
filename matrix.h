@@ -16,13 +16,13 @@ private:
 	auto end() { return data.end(); }
 
 public:
-	Matrix();
+	Matrix() = default;
 
 	Matrix(int m, int n);
 
 	Matrix(int m, int n, const T& value);
 
-	Matrix(const Matrix& Matrix);
+	Matrix(const Matrix& Matrix) = default;
 
 	void Set_m(int m = 1);
 
@@ -40,9 +40,11 @@ public:
 
 	auto cend() const { return data.cend(); }
 
-	~Matrix() ;
+	~Matrix() = default;
 
 	T operator () (int m, int n) const;
+
+	Matrix& operator = (const Matrix& M) = default;
 
 	Matrix& operator () (int m, int n, const T& value);
 
@@ -78,10 +80,10 @@ public:
 	{
 		for (auto it = New_Matrix.cbegin(); it != New_Matrix.cend(); it++) 
 		{
-			for (auto iter = (*it).cbegin(); iter != (*it).cend(); iter++) 
+			for (auto iter : (*it)) 
 			{
 				os << setw(10);
-				os<< ( *iter);
+				os<<  iter;
 			}
 			cout << endl;
 		}

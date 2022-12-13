@@ -6,13 +6,13 @@
 #include <complex>
 using namespace std;
 
-template <class T>
-Matrix<T>::Matrix()
-{
-	m = 0;
-	n = 0;
-
-}
+//template <class T>
+//Matrix<T>::Matrix()
+//{
+//	m = 0;
+//	n = 0;
+//
+//}
 
 template <class T>
 Matrix<T>::Matrix(int m, int n)
@@ -37,14 +37,14 @@ Matrix<T>::Matrix(int m, int n, const T& value)
 	data = new_data;
 }
 
-template <class T>
-Matrix<T>::Matrix(const Matrix<T>& Matrix)
-{
-	m = Matrix.m;
-	n = Matrix.n;
-
-	data = Matrix.data;
-}
+//template <class T>
+//Matrix<T>::Matrix(const Matrix<T>& Matrix)
+//{
+//	m = Matrix.m;
+//	n = Matrix.n;
+//
+//	data = Matrix.data;
+//}
 
 template <class T>
 void Matrix<T>::Set_m(int m)
@@ -94,11 +94,11 @@ T Matrix<T>::Get_Data(int i, int j) const //todo+
 
 
 
-template <class T>
-Matrix<T>::~Matrix()
-{
-	data.clear();
-}
+//template <class T>
+//Matrix<T>::~Matrix()
+//{
+//	data.clear();
+//}
 
 template <class T>
 T Matrix<T>::operator ()(int m, int n) const
@@ -173,10 +173,12 @@ Matrix<T> Matrix<T>::operator * (const Matrix<T>& New_Matrix)
 
 	Matrix<T> res(m, New_Matrix.n, T(0));
 
+	
 	for (int i = 0; i < res.m; ++i)
 	{
 		for (int j = 0; j < res.n; ++j)
 		{
+
 			for (int k = 0; k < m; ++k)
 			{
 				res.data.at(i).at(j) += data.at(i).at(k) * New_Matrix.data.at(k).at(j);
